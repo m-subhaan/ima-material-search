@@ -1,0 +1,10 @@
+<mvc:View
+    controllerName="openui5.hello.world.controller.App"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+    
+    <App id="app">
+        <!-- Pages will be dynamically added here by the router -->
+    </App>
+</mvc:View>

@@ -1,0 +1,253 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+    
+    <VBox width="100%">
+        <!-- Summary Cards -->
+        <l:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiTinyMargin">
+            <l:content>
+                <NumericContent
+                    value="{= ${materialsModel>/materials}.length}"
+                    scale="Total Materials"
+                    valueColor="Neutral"
+                    icon="sap-icon://document"/>
+                
+                <NumericContent
+                    value="{materialsModel>/approvedCount}"
+                    scale="Approved"
+                    valueColor="Good"
+                    icon="sap-icon://accept"/>
+                
+                <NumericContent
+                    value="{materialsModel>/requestedCount}"
+                    scale="Requested"
+                    valueColor="Error"
+                    icon="sap-icon://pending"/>
+                
+                <NumericContent
+                    value="{materialsModel>/emailSentCount}"
+                    scale="Email Sent"
+                    valueColor="Error"
+                    icon="sap-icon://email"/>
+            </l:content>
+        </l:Grid>
+
+        <!-- Filter Section -->
+        <Panel headerText="Filter Options" class="sapUiTinyMargin">
+            <content>
+                <l:HorizontalLayout allowWrapping="true" class="sapUiTinyMargin">
+                    <l:content>
+                        <!-- <Label text="Status:" class="sapUiTinyMarginEnd"/> -->
+                        <Select
+                            id="analystStatusFilter"
+                            selectedKey="all"
+                            change="onAnalystStatusFilterChange"
+                            class="sapUiTinyMarginEnd">
+                            <core:Item key="all" text="All Statuses"/>
+                            <core:Item key="approved" text="Approved"/>
+                            <core:Item key="requested" text="Requested"/>
+                            <core:Item key="emailSentToIMA" text="Email Sent to IMA"/>
+                        </Select>
+                        
+                        <!-- <Label text="Vendor:" class="sapUiTinyMarginEnd"/> -->
+                        <Select
+                            id="analystVendorFilter"
+                            selectedKey="all"
+                            change="onAnalystVendorFilterChange"
+                            class="sapUiTinyMarginEnd">
+                            <core:Item key="all" text="All Vendors"/>
+                            <core:Item key="VENDOR001" text="SteelCorp Industries"/>
+                            <core:Item key="VENDOR002" text="PolyTech Solutions"/>
+                            <core:Item key="VENDOR003" text="CeramicWorks Ltd"/>
+                            <core:Item key="VENDOR004" text="CarbonFiber Pro"/>
+                        </Select>
+                        
+                        <Input
+                            id="analystSearchInput"
+                            placeholder="Search by Request ID"
+                            width="200px"
+                            class="sapUiTinyMarginEnd"/>
+                        
+                        <DatePicker
+                            id="analystFromDateFilter"
+                            displayFormat="yyyy-MM-dd"
+                            placeholder="From Date"
+                            width="250px"
+                            class="sapUiTinyMarginEnd"/>
+                        
+                        <DatePicker
+                            id="analystToDateFilter"
+                            displayFormat="yyyy-MM-dd"
+                            placeholder="To Date"
+                            width="250px"
+                            class="sapUiTinyMarginEnd"/>
+                        
+                        <Button
+                            text="Apply Filters"
+                            type="Emphasized"
+                            press="onApplyAnalystFilters"
+                            class="sapUiTinyMarginEnd"/>
+                        
+                        <Button
+                            text="Clear Filters"
+                            press="onClearAnalystFilters"
+                            class="sapUiTinyMarginEnd"/>
+                        
+                        <Button
+                            text="Export Data"
+                            icon="sap-icon://download"
+                            press="onExportAnalystData"
+                            class="sapUiTinyMarginEnd"/>
+                    </l:content>
+                </l:HorizontalLayout>
+            </content>
+        </Panel>
+
+        <!-- Materials Table -->
+        <Panel headerText="Materials Overview" class="sapUiTinyMargin">
+            <content>
+                <Table
+                    id="analystMaterialsTable"
+                    items="{materialsModel>/filteredMaterials}"
+                    class="sapUiTinyMarginTop">
+                    <columns>
+                        <Column width="8%">
+                            <Text text="Request ID"/>
+                        </Column>
+                        <Column width="8%">
+                            <Text text="Material ID"/>
+                        </Column>
+                        <Column width="10%">
+                            <Text text="Material Number"/>
+                        </Column>
+                        <Column width="15%">
+                            <Text text="Material Name"/>
+                        </Column>
+                        <Column width="18%">
+                            <Text text="Description"/>
+                        </Column>
+                        <Column width="8%">
+                            <Text text="Status"/>
+                        </Column>
+                        <Column width="8%">
+                            <Text text="Created By"/>
+                        </Column>
+                        <Column width="10%">
+                            <Text text="Created Date"/>
+                        </Column>
+                        <Column width="15%">
+                            <Text text="Actions"/>
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{materialsModel>requestID}"/>
+                                <Text text="{materialsModel>materialsID}"/>
+                                <Text text="{materialsModel>materialNumber}"/>
+                                <Text text="{materialsModel>materialName}"/>
+                                <Text text="{materialsModel>materialDescription}"/>
+                                <ObjectStatus
+                                    text="{materialsModel>status}"
+                                    state="{= ${materialsModel>status} === 'approved' ? 'Success' : ${materialsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}"/>
+                                <Text text="{materialsModel>createdBy}"/>
+                                <Text text="{materialsModel>createdAt}"/>
+                                <HBox>
+                                    <Button
+                                        text="View Details"
+                                        type="Transparent"
+                                        press="onViewAnalystMaterialDetails"
+                                        class="sapUiTinyMarginEnd"/>
+                                </HBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </content>
+        </Panel>
+
+        <!-- Material Details Dialog -->
+        <Dialog
+            id="analystMaterialDetailsDialog"
+            title="Material Details"
+            contentWidth="800px"
+            contentHeight="700px">
+            <content>
+                <VBox class="sapUiMediumMargin">
+                    <VBox class="sapUiTinyMarginBottom">
+                        <Label text="Request ID" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestId" text="{materialsModel>requestID}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Material ID" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailId" text="{materialsModel>materialsID}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Material Number" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailNumber" text="{materialsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Material Name" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailName" text="{materialsModel>materialName}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Description" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailDescription" text="{materialsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Status" class="sapUiTinyMarginBottom"/>
+                        <ObjectStatus id="analystDetailStatus" text="{materialsModel>status}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Created By" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestedBy" text="{materialsModel>createdBy}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Created Date" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestedDate" text="{materialsModel>createdAt}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Modified By" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailModifiedBy" text="{materialsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Modified Date" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailModifiedDate" text="{materialsModel>modifiedAt}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Vendor" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailVendor" text="{materialsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Plant" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailPlant" text="{materialsModel>plantName}" class="sapUiTinyMarginBottom"/>
+                    </VBox>
+                </VBox>
+            </content>
+            <buttons>
+                <Button text="Close" press="onCloseAnalystMaterialDetails"/>
+            </buttons>
+        </Dialog>
+
+        <!-- Material Specifications Dialog -->
+        <Dialog
+            id="analystMaterialSpecsDialog"
+            title="Material Specifications"
+            contentWidth="600px"
+            contentHeight="500px">
+            <content>
+                <VBox class="sapUiMediumMargin">
+                    <VBox class="sapUiTinyMarginBottom">
+                        <Label text="Material" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsMaterialName" text="{materialsModel>materialName}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Material Number" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsMaterialNumber" text="{materialsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Description" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsDescription" text="{materialsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Vendor" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsVendor" text="{materialsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Plant" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsPlant" text="{materialsModel>plantName}" class="sapUiTinyMarginBottom"/>
+                    </VBox>
+                </VBox>
+            </content>
+            <buttons>
+                <Button text="Close" press="onCloseAnalystMaterialSpecs"/>
+            </buttons>
+        </Dialog>
+    </VBox>
+</core:FragmentDefinition>

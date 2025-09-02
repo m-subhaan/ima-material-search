@@ -1,0 +1,64 @@
+{
+    "_version": "1.9.0",
+    "sap.app": {
+        "id": "openui5.hello.world",
+        "type": "application",
+        "title": "IMA Material Management System",
+        "description": "A comprehensive SAP Fiori OpenUI5 application for managing material requests and approvals"
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "rootView": {
+            "viewName": "openui5.hello.world.view.App",
+            "type": "XML"
+        },
+        "dependencies": {
+            "minUI5Version": "1.139.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ui.layout": {}
+            }
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "viewPath": "openui5.hello.world.view",
+                "controlId": "app",
+                "controlAggregation": "pages",
+                "async": true,
+                "preload": false
+            },
+            "routes": [
+                {
+                    "pattern": "",
+                    "name": "login",
+                    "target": "login"
+                },
+                {
+                    "pattern": "main",
+                    "name": "main",
+                    "target": "main"
+                }
+            ],
+            "targets": {
+                "login": {
+                    "viewName": "Login",
+                    "viewLevel": 1
+                },
+                "main": {
+                    "viewName": "Main",
+                    "viewLevel": 2
+                }
+            }
+        }
+    }
+}

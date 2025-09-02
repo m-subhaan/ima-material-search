@@ -1,0 +1,251 @@
+<core:FragmentDefinition xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <VBox width="100%" afterRendering="onMaterialSearchFragmentRendered">
+        <!-- Search Section -->
+        <Panel headerText="Material Search" class="sapUiTinyMargin">
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="Material Search"/>
+                    <ToolbarSpacer/>
+                    <Button text="Create New Material Request" type="Accept" press="onCreateMaterialRequest" class="sapUiTinyMarginEnd" icon="sap-icon://add"/>
+                </Toolbar>
+            </headerToolbar>
+            <content>
+                <VBox>
+                    <!-- All Filters in One Row -->
+                    <l:HorizontalLayout allowWrapping="true" class="sapUiTinyMarginBottom">
+                        <l:content>
+                            <!-- <Label text="Material Name:" class="sapUiTinyMarginEnd"/> -->
+                            <Input id="materialNameFilter" placeholder="Search by material name" width="250px" class="sapUiTinyMarginEnd"/>
+
+                            <!-- <Label text="Material Number:" class="sapUiTinyMarginEnd"/> -->
+                            <Input id="materialNumberFilter" placeholder="Search by material number" width="250px" class="sapUiTinyMarginEnd"/>
+
+                            <!-- <Label text="Description:" class="sapUiTinyMarginEnd"/> -->
+                            <Input id="descriptionFilter" placeholder="Search by description" width="250px" class="sapUiTinyMarginEnd"/>
+
+                            <!-- <Label text="Vendor:" class="sapUiTinyMarginEnd"/> -->
+                            <Select id="vendorFilter" width="180px" class="sapUiTinyMarginEnd">
+                                <core:Item key="" text="All Vendors"/>
+                            </Select>
+
+                            <!-- <Label text="Plant:" class="sapUiTinyMarginEnd"/> -->
+                            <Select id="plantFilter" width="180px" class="sapUiTinyMarginEnd">
+                                <core:Item key="" text="All Plants"/>
+                            </Select>
+                            <Button text="Apply Filters" type="Emphasized" press="onApplyFilters" class="sapUiTinyMarginEnd"/>
+                            <Button text="Clear Filters" press="onClearFilters" class="sapUiTinyMarginEnd"/>
+                        </l:content>
+                    </l:HorizontalLayout>
+
+                    <!-- <l:HorizontalLayout allowWrapping="true" class="sapUiTinyMarginBottom">
+                        <l:content>
+                        </l:content>
+                    </l:HorizontalLayout> -->
+                </VBox>
+            </content>
+        </Panel>
+
+        <!-- Results Section -->
+        <Panel headerText="Approved Materials in System" class="sapUiTinyMargin">
+            <content>
+                <VBox>
+                    <HBox justifyContent="End" class="sapUiTinyMarginBottom">
+                        <Label text="Items per page:" class="sapUiTinyMarginEnd"/>
+                        <Select id="pageSizeSelect" selectedKey="10" change="onPageSizeChange" width="80px">
+                            <core:Item key="5" text="5"/>
+                            <core:Item key="10" text="10"/>
+                            <core:Item key="20" text="20"/>
+                        </Select>
+                    </HBox>
+
+                    <Table id="materialsTable" items="{materialsModel>/filteredMaterials}" class="sapUiTinyMarginTop">
+                        <columns>
+                            <Column width="8%">
+                                <Text text="Request ID"/>
+                            </Column>
+                            <Column width="8%">
+                                <Text text="Material ID"/>
+                            </Column>
+                            <Column width="10%">
+                                <Text text="Material Number"/>
+                            </Column>
+                            <Column width="18%">
+                                <Text text="Material Name"/>
+                            </Column>
+                            <Column width="22%">
+                                <Text text="Description"/>
+                            </Column>
+                            <Column width="8%">
+                                <Text text="Vendor"/>
+                            </Column>
+                            <Column width="8%">
+                                <Text text="Plant"/>
+                            </Column>
+                            <Column width="18%">
+                                <Text text="Actions"/>
+                            </Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem>
+                                <cells>
+                                    <Text text="{materialsModel>requestID}"/>
+                                    <Text text="{materialsModel>materialsID}"/>
+                                    <Text text="{materialsModel>materialNumber}"/>
+                                    <Text text="{materialsModel>materialName}"/>
+                                    <Text text="{materialsModel>materialDescription}"/>
+                                    <Text text="{materialsModel>vendorName}"/>
+                                    <Text text="{materialsModel>plantName}"/>
+                                    <HBox>
+                                        <Button text="View Details" type="Transparent" press="onViewMaterialDetails" class="sapUiTinyMarginEnd"/>
+                                    </HBox>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+
+                    <HBox justifyContent="Center" class="sapUiMediumMarginTop">
+                        <Button icon="sap-icon://slim-arrow-left" press="onPreviousPage" enabled="{materialsModel>/canGoPrevious}" class="sapUiTinyMarginEnd"/>
+                        <Text text="Page {materialsModel>/currentPage} of {materialsModel>/totalPages}" class="sapUiTinyMarginEnd"/>
+                        <Button icon="sap-icon://slim-arrow-right" press="onNextPage" enabled="{materialsModel>/canGoNext}" class="sapUiTinyMarginStart"/>
+                    </HBox>
+
+                    <HBox justifyContent="Center" class="sapUiTinyMarginTop">
+                        <Text text="Showing {materialsModel>/startIndex} to {materialsModel>/endIndex} of {materialsModel>/totalItems} materials"/>
+                    </HBox>
+                </VBox>
+            </content>
+        </Panel>
+
+        <!-- Material Details Dialog -->
+        <Dialog id="materialDetailsDialog" title="Material Details" contentWidth="700px" contentHeight="700px">
+            <content>
+                <VBox class="sapUiMediumMargin">
+                    <VBox class="sapUiTinyMarginBottom">
+                        <Label text="Request ID" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>requestID}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Material ID" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>materialsID}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Material Number" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Material Name" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>materialName}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Description" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Status" class="sapUiTinyMarginBottom"/>
+                        <ObjectStatus text="{materialsModel>status}" state="{= ${materialsModel>status} === 'approved' ? 'Success' : ${materialsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Created By" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>createdBy}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Created Date" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>createdAt}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Modified By" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Modified Date" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>modifiedAt}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Vendor" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Plant" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>plantName}" class="sapUiTinyMarginBottom"/>
+
+                        <!-- Requestor Details Section -->
+                        <HBox class="sapUiMediumMarginTop sapUiMediumMarginBottom">
+                            <Text text="Requestor Contact Details" class="sapUiTinyMarginBottom"/>
+                        </HBox>
+
+                        <Label text="Requestor First Name" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>requestorFirstName}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Requestor Last Name" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>requestorLastName}" class="sapUiTinyMarginBottom"/>
+
+                        <Label text="Requestor Email" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialsModel>requestorEmail}" class="sapUiTinyMarginBottom"/>
+                    </VBox>
+                </VBox>
+            </content>
+            <buttons>
+                <Button text="Close" press="onCloseMaterialDetails"/>
+            </buttons>
+        </Dialog>
+
+        <!-- Create Material Request Dialog -->
+        <Dialog id="createMaterialDialog" title="Create New Material Request" contentWidth="700px" contentHeight="650px">
+            <content>
+                <VBox class="sapUiMediumMargin">
+                    <HBox class="sapUiMediumMarginTop sapUiMediumMarginBottom">
+                        <Text text="Enter New Material Request Details" class="sapUiTinyMarginBottom"/>
+                    </HBox>
+                    <l:Grid defaultSpan="XL6 L6 M12 S12" class="sapUiTinyMarginBottom">
+                        <l:content>
+                            <VBox class="sapUiTinyMarginEnd">
+                                <Label text="Material Name *" class="sapUiTinyMarginBottom"/>
+                                <Input id="materialName" placeholder="Enter material name" class="sapUiTinyMarginBottom"/>
+
+                                <Label text="Material Description *" class="sapUiTinyMarginBottom"/>
+                                <TextArea id="materialDescription" placeholder="Enter material description" rows="3" class="sapUiTinyMarginBottom"/>
+
+                                <Label text="Material Category *" class="sapUiTinyMarginBottom"/>
+                                <Select id="materialCategory" selectedKey="Metals" class="sapUiTinyMarginBottom">
+                                    <core:Item key="Metals" text="Metals"/>
+                                    <core:Item key="Polymers" text="Polymers"/>
+                                    <core:Item key="Ceramics" text="Ceramics"/>
+                                    <core:Item key="Composites" text="Composites"/>
+                                    <core:Item key="Other" text="Other"/>
+                                </Select>
+                            </VBox>
+
+                            <VBox>
+                                <Label text="Vendor" class="sapUiTinyMarginBottom"/>
+                                <Select id="materialVendor" class="sapUiTinyMarginBottom">
+                                </Select>
+
+                                <Label text="Plant" class="sapUiTinyMarginBottom"/>
+                                <Select id="materialPlant" class="sapUiTinyMarginBottom">
+                                </Select>
+                            </VBox>
+                        </l:content>
+                    </l:Grid>
+
+                    <!-- Requestor Contact Details Section -->
+                    <HBox class="sapUiMediumMarginTop sapUiMediumMarginBottom">
+                        <Text text="Requestor Contact Details" class="sapUiTinyMarginBottom"/>
+                    </HBox>
+
+                    <l:Grid defaultSpan="XL6 L6 M12 S12" class="sapUiTinyMarginBottom">
+                        <l:content>
+                            <VBox class="sapUiTinyMarginEnd">
+                                <Label text="First Name *" class="sapUiTinyMarginBottom"/>
+                                <Input id="dialogRequestorFirstName" placeholder="Enter first name" class="sapUiTinyMarginBottom"/>
+
+                                <Label text="Last Name *" class="sapUiTinyMarginBottom"/>
+                                <Input id="dialogRequestorLastName" placeholder="Enter last name" class="sapUiTinyMarginBottom"/>
+                            </VBox>
+
+                            <VBox>
+                                <Label text="Email Address *" class="sapUiTinyMarginBottom"/>
+                                <Input id="dialogRequestorEmail" placeholder="Enter email address" type="Email" class="sapUiTinyMarginBottom"/>
+                            </VBox>
+                        </l:content>
+                    </l:Grid>
+                </VBox>
+            </content>
+            <buttons>
+                <Button text="Submit Request" type="Accept" press="onSubmitMaterialRequest"/>
+                <Button text="Cancel" press="onCancelCreateMaterial"/>
+            </buttons>
+        </Dialog>
+    </VBox>
+</core:FragmentDefinition>

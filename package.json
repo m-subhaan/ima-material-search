@@ -1,0 +1,23 @@
+{
+  "name": "openui5-hello-world",
+  "version": "1.0.0",
+  "description": "Simple OpenUI5 Hello World Application",
+  "main": "webapp/index.html",
+  "scripts": {
+    "start": "ui5 serve",
+    "build": "ui5 build",
+    "deploy": "ui5 deploy"
+  },
+  "author": "Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "@ui5/cli": "^3.0.0",
+    "ui5-middleware-proxy": "^0.0.20"
+  },
+  "keywords": [
+    "openui5",
+    "ui5",
+    "fiori",
+    "sap"
+  ]
+}

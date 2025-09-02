@@ -1,0 +1,38 @@
+{
+  "name": "ima-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "cds-serve",
+    "dev": "cds-serve --with-mocks",
+    "deploy": "cds-deploy --to sqlite:db.sqlite",
+    "gen:csv": "node scripts/gen-csv.js"
+  },
+  "dependencies": {
+    "@sap/cds": "^7.9.3",
+    "sqlite3": "^5.1.7"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "database": "db.sqlite"
+        }
+      }
+    },
+    "sql": {
+      "names": "plain"
+    },
+    "features": {
+      "fiori_preview": true
+    },
+    "cors": {
+      "origin": ["http://localhost:8080", "http://127.0.0.1:8080"],
+      "credentials": true,
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "allowedHeaders": ["Content-Type", "Authorization", "X-Requested-With"]
+    }
+  }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMA Material Management System</title>
+    
+    <script
+        id="sap-ui-bootstrap"
+        src="https://sdk.openui5.org/resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_fiori_3"
+        data-sap-ui-resourceroots='{
+            "openui5.hello.world": "./"
+        }'
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-async="true"
+        data-sap-ui-frameOptions="trusted"
+        data-sap-ui-preload="false"
+        data-sap-ui-oninit="module:sap/ui/core/ComponentSupport">
+    </script>
+    
+    <style>
+        /* Custom styles for the application */
+        .sapUiTinyMarginBottom {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sapUiTinyMarginTop {
+            margin-top: 0.5rem;
+        }
+        
+        .sapUiMediumMarginTop {
+            margin-top: 1rem;
+        }
+        
+        /* Login page specific styling */
+        #loginPage {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        #loginPage .sapMPageContent {
+            background: transparent;
+        }
+        
+        /* Custom login form styling */
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-title {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-text {
+            color: white;
+        }
+        
+        .login-form {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="sapUiBody">
+    <div data-sap-ui-component 
+         data-name="openui5.hello.world" 
+         data-id="container" 
+         data-settings='{"id" : "helloWorld"}'
+         style="height: 100%">
+    </div>
+</body>
+</html>

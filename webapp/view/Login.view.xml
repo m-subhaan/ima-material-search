@@ -1,0 +1,55 @@
+<mvc:View
+    controllerName="openui5.hello.world.controller.Login"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+    
+    <Page id="loginPage" title="OpenUI5 Hello World" showHeader="false">
+        <content>
+            <l:VerticalLayout width="100%" class="sapUiContentPadding">
+                <l:content>
+                    <VBox alignItems="Center" justifyContent="Center" height="100vh">
+                        <VBox alignItems="Center" justifyContent="Center" width="400px" class="login-container">
+                            <!-- <core:Icon src="sap-icon://hello-world" size="4rem" color="white" class="sapUiTinyMarginBottom"/> -->
+                            <Title text="IMA Materials Search App" level="H1" class="sapUiTinyMarginBottom login-title"/>
+                            <Text text="Please sign in to continue" class="login-text"/>
+                            
+                            <VBox width="100%" class="login-form">
+                                <Label text="Username" labelFor="usernameInput" required="true"/>
+                                <Input
+                                    id="usernameInput"
+                                    placeholder="Enter username"
+                                    class="sapUiTinyMarginBottom"
+                                    value="{/username}"/>
+                                
+                                <Label text="Password" labelFor="passwordInput" required="true"/>
+                                <Input
+                                    id="passwordInput"
+                                    type="Password"
+                                    placeholder="Enter password"
+                                    class="sapUiTinyMarginBottom"
+                                    value="{/password}"/>
+                                
+                                <Button
+                                    text="Sign In"
+                                    type="Emphasized"
+                                    width="100%"
+                                    press="onLoginPress"
+                                    class="sapUiTinyMarginTop"/>
+                                
+                                <MessageStrip
+                                    id="errorMessage"
+                                    text="Invalid username or password"
+                                    type="Error"
+                                    visible="false"
+                                    class="sapUiTinyMarginTop"/>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+                </l:content>
+            </l:VerticalLayout>
+        </content>
+    </Page>
+</mvc:View>

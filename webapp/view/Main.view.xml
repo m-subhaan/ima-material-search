@@ -1,0 +1,57 @@
+<mvc:View
+    controllerName="openui5.hello.world.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+    
+    <Page id="mainPage" title="IMA Material Management System" showHeader="true">
+        <headerContent>
+            <HBox alignItems="Center" class="sapUiTinyMarginEnd">
+                <Text text="Welcome, " class="sapUiTinyMarginEnd"/>
+                <Text text="{userModel>/currentUser/displayName}" class="sapUiTinyMarginEnd"/>
+                <Text text=" (" class="sapUiTinyMarginEnd"/>
+                <Text text="{userModel>/userPersona}" class="sapUiTinyMarginEnd"/>
+                <Text text=")" class="sapUiTinyMarginEnd"/>
+            </HBox>
+            <Button
+                icon="sap-icon://log"
+                text="Logout"
+                press="onLogoutPress"
+                type="Transparent"/>
+        </headerContent>
+        
+        <content>
+            <!-- MaterialSearchUser Fragment -->
+            <VBox visible="{= ${userModel>/userPersona} === 'MaterialSearchUser'}">
+                <core:Fragment
+                    fragmentName="openui5.hello.world.view.fragments.MaterialSearch"
+                    type="XML"/>
+            </VBox>
+            
+            <!-- MaterialCreateUser Fragment -->
+            <VBox visible="{= ${userModel>/userPersona} === 'MaterialCreateUser'}">
+                <core:Fragment
+                    fragmentName="openui5.hello.world.view.fragments.MaterialRequests"
+                    type="XML"/>
+            </VBox>
+            
+            <!-- AnalystUser Fragment -->
+            <VBox visible="{= ${userModel>/userPersona} === 'AnalystUser'}">
+                <core:Fragment
+                    fragmentName="openui5.hello.world.view.fragments.AnalystDashboard"
+                    type="XML"/>
+            </VBox>
+            
+            <!-- Default content if no persona is set -->
+            <VBox
+                visible="{= ${userModel>/userPersona} === null || ${userModel>/userPersona} === ''}"
+                alignItems="Center"
+                justifyContent="Center"
+                height="100%">
+                <Title text="Welcome to IMA Material Management System" level="H1" class="sapUiTinyMarginBottom"/>
+                <Text text="Please log in with appropriate credentials to access your dashboard." class="sapUiTinyMarginBottom"/>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
