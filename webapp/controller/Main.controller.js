@@ -155,7 +155,7 @@ sap.ui.define([
             var that = this;
             
             // Create material via fetch API
-            fetch("/odata/v4/catalog/Materials", {
+            fetch("http://localhost:4004/odata/v4/catalog/Materials", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -296,7 +296,7 @@ sap.ui.define([
             };
             
             // Update material via fetch API
-            fetch("/odata/v4/catalog/Materials(" + sRequestID + ")", {
+            fetch("http://localhost:4004/odata/v4/catalog/Materials(" + sRequestID + ")", {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"

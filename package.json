@@ -11,8 +11,7 @@
   "author": "Developer",
   "license": "MIT",
   "devDependencies": {
-    "@ui5/cli": "^3.0.0",
-    "ui5-middleware-proxy": "^0.0.20"
+    "@ui5/cli": "^3.0.0"
   },
   "keywords": [
     "openui5",
