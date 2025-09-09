@@ -118,59 +118,57 @@ sap.ui.define([
         onSubmitMaterialRequest: function() {
             var sName = this.byId("materialName").getValue();
             var sDescription = this.byId("materialDescription").getValue();
-            var sCategory = this.byId("materialCategory").getSelectedKey();
             var sVendor = this.byId("materialVendor").getSelectedKey();
             var sPlant = this.byId("materialPlant").getSelectedKey();
             var sFirstName = this.byId("dialogRequestorFirstName").getValue();
             var sLastName = this.byId("dialogRequestorLastName").getValue();
             var sEmail = this.byId("dialogRequestorEmail").getValue();
             
-            if (!sName || !sDescription || !sCategory || !sFirstName || !sLastName || !sEmail) {
+            if (!sName || !sDescription || !sVendor || !sPlant || !sFirstName || !sLastName || !sEmail) {
                 MessageToast.show("Please fill in all required fields");
                 return;
             }
             
-            // Generate next request ID
-            var sNextRequestID = this._generateNextRequestID();
+            // Generate unique material ID
+            var sMaterialID = "MAT_REQ_" + Date.now().toString().padStart(6, '0');
             
             // Create new material request for OData
-            var oNewMaterial = {
-                requestID: sNextRequestID,
-                materialsID: "MAT" + Date.now(),
-                materialNumber: "M" + Date.now(),
+            var oNewMaterialRequest = {
+                materialID: sMaterialID,
                 materialName: sName,
+                vendor: sVendor,
+                plant: sPlant,
                 materialDescription: sDescription,
+                firstName: sFirstName,
+                lastName: sLastName,
+                email: sEmail,
                 status: "requested",
-                createdBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username"),
-                createdAt: new Date().toISOString().split('T')[0],
-                modifiedAt: new Date().toISOString().split('T')[0],
-                modifiedBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username"),
-                plant_ID: sPlant,
-                vendor_ID: sVendor,
-                requestorFirstName: sFirstName,
-                requestorLastName: sLastName,
-                requestorEmail: sEmail
+                materialNumber: "", // Will be filled after approval
+                createdAt: new Date().toISOString(),
+                createdBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username") || "user",
+                modifiedAt: new Date().toISOString(),
+                modifiedBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username") || "user"
             };
             
             var that = this;
             
-            // Create material via fetch API
-            fetch("http://localhost:4004/odata/v4/catalog/Materials", {
+            // Create material request via fetch API
+            fetch("http://localhost:4004/odata/v4/catalog/MaterialRequests", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(oNewMaterial)
+                body: JSON.stringify(oNewMaterialRequest)
             })
             .then(function(response) {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error("Failed to create material");
+                    throw new Error("Failed to create material request");
                 }
             })
             .then(function(oData) {
-                console.log("Material created successfully:", oData);
+                console.log("Material request created successfully:", oData);
                 
                 // Refresh the data from OData
                 that.getOwnerComponent()._loadInitialData();
@@ -179,10 +177,10 @@ sap.ui.define([
                 that._clearMaterialForm();
                 that.byId("createMaterialDialog").close();
                 
-                MessageToast.show("Material request created successfully! New request added to the system.");
+                MessageToast.show("Material request created successfully! Request has been submitted for approval.");
             })
             .catch(function(oError) {
-                console.error("Failed to create material:", oError);
+                console.error("Failed to create material request:", oError);
                 MessageToast.show("Failed to create material request. Please try again.");
             });
         },
@@ -190,20 +188,10 @@ sap.ui.define([
         _clearMaterialForm: function() {
             this.byId("materialName").setValue("");
             this.byId("materialDescription").setValue("");
-            this.byId("materialCategory").setSelectedKey("Metals");
             
-            // Get first vendor and plant from models for default selection
-            var oVendorsModel = this.getOwnerComponent().getModel("vendorsModel");
-            var oPlantsModel = this.getOwnerComponent().getModel("plantsModel");
-            var aVendors = oVendorsModel.getProperty("/vendors") || [];
-            var aPlants = oPlantsModel.getProperty("/plants") || [];
-            
-            if (aVendors.length > 0) {
-                this.byId("materialVendor").setSelectedKey(aVendors[0].vendor_ID);
-            }
-            if (aPlants.length > 0) {
-                this.byId("materialPlant").setSelectedKey(aPlants[0].plant_ID);
-            }
+            // Clear dropdown selections (no prefilled values)
+            this.byId("materialVendor").setSelectedKey("");
+            this.byId("materialPlant").setSelectedKey("");
             
             this.byId("dialogRequestorFirstName").setValue("");
             this.byId("dialogRequestorLastName").setValue("");
@@ -211,14 +199,14 @@ sap.ui.define([
         },
 
         onViewMaterialDetails: function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext("materialsModel");
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
             var oMaterial = oContext.getObject();
             
             // Bind material to detail dialog
             var oDetailDialog = this.byId("materialDetailsDialog");
             oDetailDialog.bindElement({
                 path: oContext.getPath(),
-                model: "materialsModel"
+                model: "materialRequestsModel"
             });
             
             oDetailDialog.open();

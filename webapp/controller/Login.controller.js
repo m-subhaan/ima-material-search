@@ -23,10 +23,10 @@ sap.ui.define([
                     "displayName": "Material Search User"
                 },
                 {
-                    "username": "materialcreate",
+                    "username": "materialapprover",
                     "password": "admin123",
-                    "persona": "MaterialCreateUser",
-                    "displayName": "Material Create User"
+                    "persona": "MaterialApproverUser",
+                    "displayName": "Material Approver User"
                 },
                 {
                     "username": "analyst",
