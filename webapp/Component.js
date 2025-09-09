@@ -81,13 +81,19 @@ sap.ui.define([
             var aApprovedMaterials = aMaterialRequests.filter(function(material) {
                 return material.status === "approved";
             });
+
+            // Filter pending requests for MaterialApproverUser (requested + emailSentToIMA)
+            var aPendingRequests = aMaterialRequests.filter(function(material) {
+                return material.status === "requested" || material.status === "emailSentToIMA";
+            });
                     
             // Set material requests data
             oMaterialRequestsModel.setProperty("/materialRequests", aMaterialRequests);
             oMaterialRequestsModel.setProperty("/filteredMaterials", aApprovedMaterials);
+            oMaterialRequestsModel.setProperty("/pendingRequests", aPendingRequests);
             oMaterialRequestsModel.setProperty("/totalItems", aApprovedMaterials.length);
                     
-            // Initialize pagination for approved materials
+            // Initialize pagination for approved materials (MaterialSearchUser)
             this._updatePagination(aApprovedMaterials, 1, 10);
             
             // Calculate and set counts

@@ -39,25 +39,25 @@
         <l:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiTinyMargin">
             <l:content>
                 <NumericContent
-                    value="{requestsModel>/requests.length}"
+                    value="{materialRequestsModel>/pendingRequests.length}"
                     scale="Total Requests"
                     valueColor="Neutral"
                     icon="sap-icon://document"/>
                 
                 <NumericContent
-                    value="{requestsModel>/pendingCount}"
+                    value="{materialRequestsModel>/requestedCount}"
                     scale="Pending"
                     valueColor="Error"
                     icon="sap-icon://pending"/>
                 
                 <NumericContent
-                    value="{requestsModel>/emailSentCount}"
+                    value="{materialRequestsModel>/emailSentCount}"
                     scale="Email Sent"
-                    valueColor="Error"
+                    valueColor="Warning"
                     icon="sap-icon://email"/>
                 
                 <NumericContent
-                    value="{materialsModel>/approvedCount}"
+                    value="{materialRequestsModel>/approvedCount}"
                     scale="Approved"
                     valueColor="Good"
                     icon="sap-icon://accept"/>
@@ -185,71 +185,74 @@
             <content>
                 <Table
                     id="requestsTable"
-                    items="{requestsModel>/requests}"
+                    items="{materialRequestsModel>/pendingRequests}"
                     class="sapUiTinyMarginTop"
                     width="100%">
                     <columns>
-                        <Column width="8%">
-                            <Text text="Request ID"/>
-                        </Column>
-                        <Column width="8%">
-                            <Text text="Material ID"/>
-                        </Column>
-                        <Column width="18%">
+                        <Column width="15%">
                             <Text text="Material Name"/>
                         </Column>
-                        <Column width="22%">
+                        <Column width="20%">
                             <Text text="Description"/>
+                        </Column>
+                        <Column width="10%">
+                            <Text text="Vendor"/>
+                        </Column>
+                        <Column width="10%">
+                            <Text text="Plant"/>
                         </Column>
                         <Column width="10%">
                             <Text text="Status"/>
                         </Column>
-                        <Column width="12%">
-                            <Text text="Created By"/>
-                        </Column>
-                        <Column width="12%">
-                            <Text text="Created Date"/>
+                        <Column width="10%">
+                            <Text text="Requestor"/>
                         </Column>
                         <Column width="10%">
+                            <Text text="Created Date"/>
+                        </Column>
+                        <Column width="15%">
                             <Text text="Actions"/>
                         </Column>
                     </columns>
-                                            <items>
-                            <ColumnListItem>
-                                <cells>
-                                    <Text text="{requestsModel>requestID}"/>
-                                    <Text text="{requestsModel>materialsID}"/>
-                                    <Text text="{requestsModel>materialName}"/>
-                                    <Text text="{requestsModel>materialDescription}"/>
-                                    <ObjectStatus
-                                        text="{requestsModel>status}"
-                                        state="{= ${requestsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}"/>
-                                    <Text text="{requestsModel>createdBy}"/>
-                                    <Text text="{requestsModel>createdAt}"/>
-                                    <VBox alignItems="Center" class="sapUiTinyMargin">
-                                        <Button
-                                            text="Send Email to IMA"
-                                            type="Accept"
-                                            press="onSendEmailToIMA"
-                                            enabled="{= ${requestsModel>status} === 'requested'}"
-                                            width="100%"
-                                            class="sapUiTinyMarginBottom"/>
-                                        <Button
-                                            text="Close Request"
-                                            type="Emphasized"
-                                            press="onCloseRequest"
-                                            enabled="{= ${requestsModel>status} === 'emailSentToIMA'}"
-                                            width="100%"
-                                            class="sapUiTinyMarginBottom"/>
-                                        <Button
-                                            text="View Details"
-                                            type="Transparent"
-                                            press="onViewRequestDetails"
-                                            width="100%"/>
-                                    </VBox>
-                                </cells>
-                            </ColumnListItem>
-                        </items>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{materialRequestsModel>materialName}"/>
+                                <Text text="{materialRequestsModel>materialDescription}"/>
+                                <Text text="{materialRequestsModel>vendor}"/>
+                                <Text text="{materialRequestsModel>plant}"/>
+                                <ObjectStatus
+                                    text="{materialRequestsModel>status}"
+                                    state="{= ${materialRequestsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}"/>
+                                <Text text="{materialRequestsModel>firstName} {materialRequestsModel>lastName}"/>
+                                <Text text="{path: 'materialRequestsModel>createdAt', formatter: '.formatDate'}"/>
+                                <VBox alignItems="Center" class="sapUiTinyMargin">
+                                    <Button
+                                        text="Send Email to IMA"
+                                        type="Accept"
+                                        press="onSendEmailToIMA"
+                                        enabled="{= ${materialRequestsModel>status} === 'requested'}"
+                                        width="100%"
+                                        class="sapUiTinyMarginBottom"
+                                        icon="sap-icon://email"/>
+                                    <Button
+                                        text="Close Request"
+                                        type="Emphasized"
+                                        press="onCloseRequest"
+                                        enabled="{= ${materialRequestsModel>status} === 'emailSentToIMA'}"
+                                        width="100%"
+                                        class="sapUiTinyMarginBottom"
+                                        icon="sap-icon://accept"/>
+                                    <Button
+                                        text="View Details"
+                                        type="Transparent"
+                                        press="onViewRequestDetails"
+                                        width="100%"
+                                        icon="sap-icon://detail-view"/>
+                                </VBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
                 </Table>
             </content>
         </Panel>
@@ -265,47 +268,51 @@
             <content>
                 <VBox class="sapUiMediumMargin">
                     <VBox class="sapUiTinyMarginBottom">
-                        <Label text="Request ID" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestId" text="{requestsModel>requestID}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Material ID" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailId" text="{requestsModel>materialsID}" class="sapUiTinyMarginBottom"/>
-                        
                         <Label text="Material Name" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailName" text="{requestsModel>materialName}" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>materialName}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Description" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailDescription" text="{requestsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Status" class="sapUiTinyMarginBottom"/>
-                        <ObjectStatus id="requestDetailStatus" text="{requestsModel>status}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Created By" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestedBy" text="{requestsModel>createdBy}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Created Date" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestedDate" text="{requestsModel>createdAt}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Modified By" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailModifiedBy" text="{requestsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
-                        
-                        <Label text="Modified Date" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailModifiedDate" text="{requestsModel>modifiedAt}" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Vendor" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailVendor" text="{requestsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>vendor}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Plant" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailPlant" text="{requestsModel>plantName}" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>plant}" class="sapUiTinyMarginBottom"/>
                         
-                        <Label text="Requestor First Name" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestorFirstName" text="{requestsModel>requestorDetails/firstName}" class="sapUiTinyMarginBottom"/>
+                        <Label text="Status" class="sapUiTinyMarginBottom"/>
+                        <ObjectStatus text="{materialRequestsModel>status}" state="{= ${materialRequestsModel>status} === 'emailSentToIMA' ? 'Warning' : ${materialRequestsModel>status} === 'approved' ? 'Success' : 'Error'}" class="sapUiTinyMarginBottom"/>
                         
-                        <Label text="Requestor Last Name" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestorLastName" text="{requestsModel>requestorDetails/lastName}" class="sapUiTinyMarginBottom"/>
+                        <Label text="Material Number" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
                         
-                        <Label text="Requestor Email" class="sapUiTinyMarginBottom"/>
-                        <Text id="requestDetailRequestorEmail" text="{requestsModel>requestorDetails/emailAddress}" class="sapUiTinyMarginBottom"/>
+                        <Label text="Created By" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>createdBy}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Created Date" class="sapUiTinyMarginBottom"/>
+                        <Text text="{path: 'materialRequestsModel>createdAt', formatter: '.formatDate'}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Modified By" class="sapUiTinyMarginBottom"/>
+                        <Text text="{materialRequestsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
+                        
+                        <Label text="Modified Date" class="sapUiTinyMarginBottom"/>
+                        <Text text="{path: 'materialRequestsModel>modifiedAt', formatter: '.formatDate'}" class="sapUiTinyMarginBottom"/>
+                        
+                        <!-- Requestor Details -->
+                        <Panel headerText="Requestor Details" class="sapUiMediumMarginTop" expandable="false">
+                            <content>
+                                <VBox class="sapUiMediumMargin">
+                                    <Label text="First Name" class="sapUiTinyMarginBottom"/>
+                                    <Text text="{materialRequestsModel>firstName}" class="sapUiTinyMarginBottom"/>
+                                    
+                                    <Label text="Last Name" class="sapUiTinyMarginBottom"/>
+                                    <Text text="{materialRequestsModel>lastName}" class="sapUiTinyMarginBottom"/>
+                                    
+                                    <Label text="Email" class="sapUiTinyMarginBottom"/>
+                                    <Text text="{materialRequestsModel>email}" class="sapUiTinyMarginBottom"/>
+                                </VBox>
+                            </content>
+                        </Panel>
                     </VBox>
                 </VBox>
             </content>
@@ -314,7 +321,7 @@
             </buttons>
         </Dialog>
 
-        <!-- Confirmation Dialog for Actions -->
+        <!-- Confirmation Dialog for Send Email -->
         <Dialog
             id="actionConfirmDialog"
             title="Confirm Action"
@@ -326,6 +333,37 @@
             <buttons>
                 <Button text="Cancel" press="onCancelAction"/>
                 <Button text="Confirm" type="Emphasized" press="onConfirmAction"/>
+            </buttons>
+        </Dialog>
+
+        <!-- Material Number Input Dialog for Close Request -->
+        <Dialog
+            id="materialNumberDialog"
+            title="Close Request - Enter Material Number"
+            contentWidth="500px"
+            contentHeight="300px">
+            <content>
+                <VBox class="sapUiLargeMargin">
+                    <Text text="Please enter the material number to close this request and mark it as approved:" class="sapUiMediumMarginBottom"/>
+                    
+                    <VBox class="sapUiMediumMarginBottom">
+                        <Label text="Material Number *" required="true" class="sapUiSmallMarginBottom"/>
+                        <Input 
+                            id="materialNumberInput" 
+                            placeholder="Enter material number (e.g., MAT12345)" 
+                            width="100%"
+                            class="sapUiMediumMarginBottom"/>
+                    </VBox>
+                    
+                    <MessageStrip 
+                        text="Once you enter the material number and confirm, this request will be marked as approved and will no longer appear in your pending requests list."
+                        type="Information"
+                        class="sapUiMediumMarginBottom"/>
+                </VBox>
+            </content>
+            <buttons>
+                <Button text="Cancel" press="onCancelMaterialNumberDialog"/>
+                <Button text="Approve Request" type="Accept" press="onConfirmMaterialNumber" icon="sap-icon://accept"/>
             </buttons>
         </Dialog>
     </VBox>

@@ -29,8 +29,8 @@
                     type="XML"/>
             </VBox>
             
-            <!-- MaterialCreateUser Fragment -->
-            <VBox visible="{= ${userModel>/userPersona} === 'MaterialCreateUser'}">
+            <!-- MaterialApproverUser Fragment -->
+            <VBox visible="{= ${userModel>/userPersona} === 'MaterialApproverUser'}">
                 <core:Fragment
                     fragmentName="openui5.hello.world.view.fragments.MaterialRequests"
                     type="XML"/>

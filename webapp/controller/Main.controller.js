@@ -574,6 +574,177 @@ sap.ui.define([
             this.byId("requestDetailsDialog").close();
         },
 
+        // MaterialApprover Functions
+        onSendEmailToIMA: function(oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
+            var oMaterial = oContext.getObject();
+            
+            // Show confirmation dialog
+            var oConfirmDialog = this.byId("actionConfirmDialog");
+            this.byId("actionConfirmText").setText("Are you sure you want to send email to IMA for material '" + oMaterial.materialName + "'?");
+            oConfirmDialog.data("material", oMaterial);
+            oConfirmDialog.data("action", "sendEmail");
+            oConfirmDialog.open();
+        },
+
+        onCloseRequest: function(oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
+            var oMaterial = oContext.getObject();
+            
+            // Store the material for later use and open material number dialog
+            this._currentMaterial = oMaterial;
+            this.byId("materialNumberInput").setValue("");
+            this.byId("materialNumberDialog").open();
+        },
+
+        onCancelMaterialNumberDialog: function() {
+            this.byId("materialNumberDialog").close();
+            this._currentMaterial = null;
+        },
+
+        onConfirmMaterialNumber: function() {
+            var sMaterialNumber = this.byId("materialNumberInput").getValue();
+            
+            if (!sMaterialNumber || sMaterialNumber.trim() === "") {
+                MessageToast.show("Please enter a material number");
+                return;
+            }
+            
+            var oMaterial = this._currentMaterial;
+            if (!oMaterial) {
+                MessageToast.show("No material selected");
+                return;
+            }
+            
+            // Update the material request with material number and approved status
+            this._updateMaterialRequestStatus(oMaterial.materialID, "approved", sMaterialNumber);
+            
+            // Close dialog and clear current material
+            this.byId("materialNumberDialog").close();
+            this._currentMaterial = null;
+        },
+
+        onConfirmAction: function() {
+            var oConfirmDialog = this.byId("actionConfirmDialog");
+            var oMaterial = oConfirmDialog.data("material");
+            var sAction = oConfirmDialog.data("action");
+            
+            if (sAction === "sendEmail") {
+                // Update status to emailSentToIMA
+                this._updateMaterialRequestStatus(oMaterial.materialID, "emailSentToIMA");
+            }
+            
+            oConfirmDialog.close();
+        },
+
+        onCancelAction: function() {
+            this.byId("actionConfirmDialog").close();
+        },
+
+        _updateMaterialRequestStatus: function(sMaterialID, sNewStatus, sMaterialNumber) {
+            var oUpdateData = {
+                status: sNewStatus,
+                modifiedAt: new Date().toISOString(),
+                modifiedBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username") || "approver"
+            };
+            
+            // Add material number if provided (for approval)
+            if (sMaterialNumber) {
+                oUpdateData.materialNumber = sMaterialNumber;
+            }
+            
+            var that = this;
+            
+            // Update material request via fetch API
+            fetch("http://localhost:4004/odata/v4/catalog/MaterialRequests(" + sMaterialID + ")", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(oUpdateData)
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to update material request status");
+                }
+            })
+            .then(function(oData) {
+                console.log("Material request status updated successfully:", oData);
+                
+                // Refresh the data from OData
+                that.getOwnerComponent()._loadInitialData();
+                
+                var sMessage = sNewStatus === "emailSentToIMA" ? 
+                    "Email sent to IMA successfully" : 
+                    "Request approved successfully with material number: " + sMaterialNumber;
+                
+                MessageToast.show(sMessage);
+            })
+            .catch(function(oError) {
+                console.error("Failed to update material request status:", oError);
+                MessageToast.show("Failed to update material request status. Please try again.");
+            });
+        },
+
+        onViewRequestDetails: function(oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
+            var oRequest = oContext.getObject();
+            
+            // Bind request to detail dialog
+            var oDetailDialog = this.byId("requestDetailsDialog");
+            oDetailDialog.bindElement({
+                path: oContext.getPath(),
+                model: "materialRequestsModel"
+            });
+            
+            oDetailDialog.open();
+        },
+
+        onRefreshRequests: function() {
+            var oComponent = this.getOwnerComponent();
+            oComponent._loadInitialData();
+            MessageToast.show("Requests refreshed");
+        },
+
+        formatDate: function(sDate) {
+            if (!sDate) return "";
+            var oDate = new Date(sDate);
+            return oDate.toLocaleDateString() + " " + oDate.toLocaleTimeString();
+        },
+
+        onStatusFilterChange: function(oEvent) {
+            var sSelectedStatus = oEvent.getParameter("selectedItem").getKey();
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            
+            // Get all material requests
+            var aAllMaterialRequests = oMaterialRequestsModel.getProperty("/materialRequests");
+            var aFilteredRequests;
+            
+            if (sSelectedStatus === "all") {
+                // Show all non-approved requests
+                aFilteredRequests = aAllMaterialRequests.filter(function(material) {
+                    return material.status === "requested" || material.status === "emailSentToIMA";
+                });
+            } else {
+                // Filter by specific status
+                aFilteredRequests = aAllMaterialRequests.filter(function(material) {
+                    return material.status === sSelectedStatus;
+                });
+            }
+            
+            // Update the pending requests
+            oMaterialRequestsModel.setProperty("/pendingRequests", aFilteredRequests);
+            
+            MessageToast.show("Filter applied. Showing " + aFilteredRequests.length + " requests.");
+        },
+
+        onSyncRequests: function() {
+            // This function syncs the requests - essentially a refresh
+            this.onRefreshRequests();
+        },
+
         // AnalystUser Functions
         onAnalystStatusFilterChange: function() {
             // Filter will be applied when Apply Filters is clicked
