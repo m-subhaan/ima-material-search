@@ -1,31 +1,18 @@
 namespace ima;
 
-entity Materials {
-  key requestID           : String;
-      materialsID         : String;
-      materialNumber      : String;
+entity MaterialRequests {
+  key materialID          : String;  // For BE Administration, not to show on UI
       materialName        : String;
+      vendor              : String;
+      plant               : String;
       materialDescription : String;
-      createdAt           : Date;
+      firstName           : String;
+      lastName            : String;
+      email               : String;
+      status              : String;  // requested, emailSentToIMA, approved
+      materialNumber      : String;  // Will be filled after approval
+      createdAt           : DateTime;
       createdBy           : String;
-      modifiedAt          : Date;
+      modifiedAt          : DateTime;
       modifiedBy          : String;
-      status              : String;
-      plant_ID            : String;
-      vendor_ID           : String;
-      requestorFirstName  : String;
-      requestorLastName   : String;
-      requestorEmail      : String;
-}
-
-entity Vendors {
-  key vendor_ID     : String;
-      vendorName    : String;
-      vendorLocation: String;
-}
-
-entity Plants {
-  key plant_ID      : String;
-      plantName     : String;
-      plantLocation : String;
 } 

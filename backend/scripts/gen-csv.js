@@ -21,48 +21,49 @@ function toCSV(rows) {
   return lines.join('\n');
 }
 
-function main() {
-  const projectRoot = path.resolve(__dirname, '..', '..');
-  const srcMaterialsPath = path.join(projectRoot, 'webapp', 'model', 'data', 'materials.json');
-
-  if (!fs.existsSync(srcMaterialsPath)) {
-    console.error('Source file not found:', srcMaterialsPath);
-    process.exit(1);
+function generateSampleMaterialRequests() {
+  const vendors = ['Vendor A', 'Vendor B', 'Vendor C', 'Vendor D'];
+  const plants = ['Plant North', 'Plant South', 'Plant East', 'Plant West'];
+  const statuses = ['requested', 'emailSentToIMA', 'approved'];
+  const materialTypes = ['Steel Pipe', 'Aluminum Sheet', 'Copper Wire', 'Plastic Component', 'Rubber Gasket'];
+  
+  const materialRequests = [];
+  
+  for (let i = 1; i <= 15; i++) {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const materialRequest = {
+      materialID: `MAT_REQ_${i.toString().padStart(6, '0')}`,
+      materialName: `${materialTypes[Math.floor(Math.random() * materialTypes.length)]} ${i}`,
+      vendor: vendors[Math.floor(Math.random() * vendors.length)],
+      plant: plants[Math.floor(Math.random() * plants.length)],
+      materialDescription: `High-quality material component for industrial use - Request ${i}`,
+      firstName: ['John', 'Jane', 'Mike', 'Sarah', 'David'][Math.floor(Math.random() * 5)],
+      lastName: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'][Math.floor(Math.random() * 5)],
+      email: `user${i}@company.com`,
+      status: status,
+      materialNumber: status === 'approved' ? `MAT${(1000 + i).toString()}` : '',
+      createdAt: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
+      createdBy: 'system',
+      modifiedAt: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
+      modifiedBy: status === 'approved' ? 'approver' : 'system'
+    };
+    materialRequests.push(materialRequest);
   }
+  
+  return materialRequests;
+}
 
-  const src = JSON.parse(fs.readFileSync(srcMaterialsPath, 'utf8'));
-
-  const outDir = path.join(projectRoot, 'backend', 'db', 'data');
+function main() {
+  const outDir = path.join(__dirname, '..', 'db', 'data');
   ensureDir(outDir);
 
-  const plants = src.plants || [];
-  const vendors = src.vendors || [];
-  const materials = (src.materials || []).map((m) => {
-    const details = m.requestorDetails || {};
-    return {
-      requestID: m.requestID || '',
-      materialsID: m.materialsID || '',
-      materialNumber: m.materialNumber || '',
-      materialName: m.materialName || '',
-      materialDescription: m.materialDescription || '',
-      createdAt: m.createdAt || '',
-      createdBy: m.createdBy || '',
-      modifiedAt: m.modifiedAt || '',
-      modifiedBy: m.modifiedBy || '',
-      plant_ID: m.plant_ID || '',
-      vendor_ID: m.vendor_ID || '',
-      status: m.status || '',
-      requestorFirstName: details.firstName || '',
-      requestorLastName: details.lastName || '',
-      requestorEmail: details.emailAddress || '',
-    };
-  });
+  // Generate sample material requests
+  const materialRequests = generateSampleMaterialRequests();
 
-  fs.writeFileSync(path.join(outDir, 'ima-Plants.csv'), toCSV(plants));
-  fs.writeFileSync(path.join(outDir, 'ima-Vendors.csv'), toCSV(vendors));
-  fs.writeFileSync(path.join(outDir, 'ima-Materials.csv'), toCSV(materials));
+  fs.writeFileSync(path.join(outDir, 'ima-MaterialRequests.csv'), toCSV(materialRequests));
 
   console.log('CSV generated in', outDir);
+  console.log(`Generated ${materialRequests.length} material requests`);
 }
 
 main();
