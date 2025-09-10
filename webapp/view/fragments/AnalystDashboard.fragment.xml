@@ -7,26 +7,26 @@
         <!-- Summary Cards -->
         <l:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiTinyMargin">
             <l:content>
-                <NumericContent
-                    value="{= ${materialsModel>/materials}.length}"
+                <!-- <NumericContent
+                    value="{= ${materialRequestsModel>/materials}.length}"
                     scale="Total Materials"
                     valueColor="Neutral"
-                    icon="sap-icon://document"/>
+                    icon="sap-icon://document"/> -->
                 
                 <NumericContent
-                    value="{materialsModel>/approvedCount}"
+                    value="{materialRequestsModel>/approvedCount}"
                     scale="Approved"
                     valueColor="Good"
                     icon="sap-icon://accept"/>
                 
                 <NumericContent
-                    value="{materialsModel>/requestedCount}"
+                    value="{materialRequestsModel>/requestedCount}"
                     scale="Requested"
                     valueColor="Error"
                     icon="sap-icon://pending"/>
                 
                 <NumericContent
-                    value="{materialsModel>/emailSentCount}"
+                    value="{materialRequestsModel>/emailSentCount}"
                     scale="Email Sent"
                     valueColor="Error"
                     icon="sap-icon://email"/>
@@ -109,7 +109,7 @@
             <content>
                 <Table
                     id="analystMaterialsTable"
-                    items="{materialsModel>/filteredMaterials}"
+                    items="{materialRequestsModel>/filteredMaterials}"
                     class="sapUiTinyMarginTop">
                     <columns>
                         <Column width="8%">
@@ -143,16 +143,16 @@
                     <items>
                         <ColumnListItem>
                             <cells>
-                                <Text text="{materialsModel>requestID}"/>
-                                <Text text="{materialsModel>materialsID}"/>
-                                <Text text="{materialsModel>materialNumber}"/>
-                                <Text text="{materialsModel>materialName}"/>
-                                <Text text="{materialsModel>materialDescription}"/>
+                                <Text text="{materialRequestsModel>requestID}"/>
+                                <Text text="{materialRequestsModel>materialsID}"/>
+                                <Text text="{materialRequestsModel>materialNumber}"/>
+                                <Text text="{materialRequestsModel>materialName}"/>
+                                <Text text="{materialRequestsModel>materialDescription}"/>
                                 <ObjectStatus
-                                    text="{materialsModel>status}"
-                                    state="{= ${materialsModel>status} === 'approved' ? 'Success' : ${materialsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}"/>
-                                <Text text="{materialsModel>createdBy}"/>
-                                <Text text="{materialsModel>createdAt}"/>
+                                    text="{materialRequestsModel>status}"
+                                    state="{= ${materialRequestsModel>status} === 'completedByIMA' ? 'Success' : ${materialRequestsModel>status} === 'pendingIMA' ? 'Warning' : 'Error'}"/>
+                                <Text text="{materialRequestsModel>createdBy}"/>
+                                <Text text="{materialRequestsModel>createdAt}"/>
                                 <HBox>
                                     <Button
                                         text="View Details"
@@ -177,40 +177,40 @@
                 <VBox class="sapUiMediumMargin">
                     <VBox class="sapUiTinyMarginBottom">
                         <Label text="Request ID" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailRequestId" text="{materialsModel>requestID}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestId" text="{materialRequestsModel>requestID}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Material ID" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailId" text="{materialsModel>materialsID}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailId" text="{materialRequestsModel>materialsID}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Material Number" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailNumber" text="{materialsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailNumber" text="{materialRequestsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Material Name" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailName" text="{materialsModel>materialName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailName" text="{materialRequestsModel>materialName}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Description" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailDescription" text="{materialsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailDescription" text="{materialRequestsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Status" class="sapUiTinyMarginBottom"/>
-                        <ObjectStatus id="analystDetailStatus" text="{materialsModel>status}" class="sapUiTinyMarginBottom"/>
+                        <ObjectStatus id="analystDetailStatus" text="{materialRequestsModel>status}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Created By" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailRequestedBy" text="{materialsModel>createdBy}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestedBy" text="{materialRequestsModel>createdBy}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Created Date" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailRequestedDate" text="{materialsModel>createdAt}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailRequestedDate" text="{materialRequestsModel>createdAt}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Modified By" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailModifiedBy" text="{materialsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailModifiedBy" text="{materialRequestsModel>modifiedBy}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Modified Date" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailModifiedDate" text="{materialsModel>modifiedAt}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailModifiedDate" text="{materialRequestsModel>modifiedAt}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Vendor" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailVendor" text="{materialsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailVendor" text="{materialRequestsModel>vendorName}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Plant" class="sapUiTinyMarginBottom"/>
-                        <Text id="analystDetailPlant" text="{materialsModel>plantName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="analystDetailPlant" text="{materialRequestsModel>plantName}" class="sapUiTinyMarginBottom"/>
                     </VBox>
                 </VBox>
             </content>
@@ -229,19 +229,19 @@
                 <VBox class="sapUiMediumMargin">
                     <VBox class="sapUiTinyMarginBottom">
                         <Label text="Material" class="sapUiTinyMarginBottom"/>
-                        <Text id="specsMaterialName" text="{materialsModel>materialName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsMaterialName" text="{materialRequestsModel>materialName}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Material Number" class="sapUiTinyMarginBottom"/>
-                        <Text id="specsMaterialNumber" text="{materialsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsMaterialNumber" text="{materialRequestsModel>materialNumber}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Description" class="sapUiTinyMarginBottom"/>
-                        <Text id="specsDescription" text="{materialsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsDescription" text="{materialRequestsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Vendor" class="sapUiTinyMarginBottom"/>
-                        <Text id="specsVendor" text="{materialsModel>vendorName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsVendor" text="{materialRequestsModel>vendorName}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Plant" class="sapUiTinyMarginBottom"/>
-                        <Text id="specsPlant" text="{materialsModel>plantName}" class="sapUiTinyMarginBottom"/>
+                        <Text id="specsPlant" text="{materialRequestsModel>plantName}" class="sapUiTinyMarginBottom"/>
                     </VBox>
                 </VBox>
             </content>

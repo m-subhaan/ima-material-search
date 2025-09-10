@@ -363,7 +363,7 @@
             </content>
             <buttons>
                 <Button text="Cancel" press="onCancelMaterialNumberDialog"/>
-                <Button text="Approve Request" type="Accept" press="onConfirmMaterialNumber" icon="sap-icon://accept"/>
+                <Button text="Close Request" type="Accept" press="onConfirmMaterialNumber" icon="sap-icon://accept"/>
             </buttons>
         </Dialog>
     </VBox>

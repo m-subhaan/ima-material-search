@@ -78,9 +78,9 @@
                             <Column width="12%">
                                 <Text text="Plant"/>
                             </Column>
-                            <Column width="19%">
+                            <!-- <Column width="19%">
                                 <Text text="Actions"/>
-                            </Column>
+                            </Column> -->
                         </columns>
                         <items>
                             <ColumnListItem>
@@ -90,9 +90,9 @@
                                     <Text text="{materialRequestsModel>materialDescription}"/>
                                     <Text text="{materialRequestsModel>vendor}"/>
                                     <Text text="{materialRequestsModel>plant}"/>
-                                    <HBox>
+                                    <!-- <HBox>
                                         <Button text="View Details" type="Transparent" press="onViewMaterialDetails" class="sapUiTinyMarginEnd"/>
-                                    </HBox>
+                                    </HBox> -->
                                 </cells>
                             </ColumnListItem>
                         </items>

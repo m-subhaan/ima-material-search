@@ -57,8 +57,8 @@ sap.ui.define([
             var sVendor = this.byId("vendorFilter").getSelectedKey();
             var sPlant = this.byId("plantFilter").getSelectedKey();
             
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialRequestsModel.getProperty("/materialRequests");
             
             // Get filtered materials based on current user persona
             var aPersonaFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
@@ -74,7 +74,7 @@ sap.ui.define([
             });
             
             // Update pagination with filtered results
-            this._updatePagination(aFilteredMaterials, 1, oMaterialsModel.getProperty("/pageSize"));
+            this._updatePagination(aFilteredMaterials, 1, oMaterialRequestsModel.getProperty("/pageSize"));
             
             var sPersona = this.getOwnerComponent().getModel("userModel").getProperty("/userPersona");
             var sPersonaText = sPersona === "MaterialSearchUser" ? "completedByIMA" : 
@@ -90,13 +90,13 @@ sap.ui.define([
             this.byId("vendorFilter").setSelectedKey("");
             this.byId("plantFilter").setSelectedKey("");
             
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialRequestsModel.getProperty("/materialRequests");
             
             // Get filtered materials based on current user persona
             var aFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
             
-            this._updatePagination(aFilteredMaterials, 1, oMaterialsModel.getProperty("/pageSize"));
+            this._updatePagination(aFilteredMaterials, 1, oMaterialRequestsModel.getProperty("/pageSize"));
             
             var sPersona = this.getOwnerComponent().getModel("userModel").getProperty("/userPersona");
             var sPersonaText = sPersona === "MaterialSearchUser" ? "completedByIMA" : 
@@ -129,8 +129,8 @@ sap.ui.define([
                 return;
             }
             
-            // Generate unique material ID
-            var sMaterialID = "MAT_REQ_" + Date.now().toString().padStart(6, '0');
+            // Generate unique material ID using the existing function
+            var sMaterialID = "MAT_REQ_" + this._generateNextRequestID();
             
             // Create new material request for OData
             var oNewMaterialRequest = {
@@ -220,10 +220,10 @@ sap.ui.define([
         onStatusFilterChange: function(oEvent) {
             var sSelectedStatus = oEvent.getParameter("selectedItem").getKey();
             var oRequestsModel = this.getOwnerComponent().getModel("requestsModel");
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             
             // Always ensure we have the latest data from materials model
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             if (sSelectedStatus === "all") {
                 // Show all requests (materials with requested or emailSentToIMA status)
@@ -327,15 +327,14 @@ sap.ui.define([
             // Apply persona-based filtering for all users
             this._applyPersonaBasedFiltering();
             
-            // Fallback: If MaterialSearchUser and dropdowns are not populated, try to populate them
+            // Populate dropdowns for MaterialSearchUser
             if (sPersona === "MaterialSearchUser") {
-                var oVendorFilter = this.byId("vendorFilter");
-                if (oVendorFilter && oVendorFilter.getItems().length <= 1) {
-                    console.log("Fallback: Populating dropdowns from onAfterRendering");
-                    this._populateDropdownsFromModels();
-                }
-                // Populate filter dropdowns
-                this._populateFilterDropdowns();
+                console.log("MaterialSearchUser detected in onAfterRendering");
+                // Populate filter dropdowns with a small delay to ensure DOM is ready
+                setTimeout(function() {
+                    console.log("Calling _populateFilterDropdowns with timeout");
+                    this._populateFilterDropdowns();
+                }.bind(this), 200);
             }
         },
 
@@ -477,10 +476,10 @@ sap.ui.define([
 
         _syncRequestsModel: function() {
             var oRequestsModel = this.getOwnerComponent().getModel("requestsModel");
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             
             // Get all materials and filter for requests
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             var aRequests = aAllMaterials.filter(function(material) {
                 return material.status === "pendingApproval" || material.status === "pendingIMA";
             });
@@ -658,7 +657,7 @@ sap.ui.define([
             var that = this;
             
             // Update material request via fetch API
-            fetch("http://localhost:4004/odata/v4/catalog/MaterialRequests(" + sMaterialID + ")", {
+            fetch("http://localhost:4004/odata/v4/catalog/MaterialRequests('" + sMaterialID + "')", {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -763,8 +762,8 @@ sap.ui.define([
             var oFromDate = this.byId("analystFromDateFilter").getDateValue();
             var oToDate = this.byId("analystToDateFilter").getDateValue();
             
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             var aFilteredMaterials = aAllMaterials.filter(function(material) {
                 var bStatusMatch = sStatusFilter === "all" || material.status === sStatusFilter;
@@ -806,8 +805,8 @@ sap.ui.define([
             this.byId("analystFromDateFilter").setValue("");
             this.byId("analystToDateFilter").setValue("");
             
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             // Update filteredMaterials for analyst view
             oMaterialsModel.setProperty("/filteredMaterials", aAllMaterials);
@@ -819,7 +818,7 @@ sap.ui.define([
         },
 
         onExportAnalystData: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var aMaterials = oMaterialsModel.getProperty("/filteredMaterials");
             
             // Create CSV content
@@ -852,14 +851,14 @@ sap.ui.define([
         },
 
         onViewAnalystMaterialDetails: function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext("materialsModel");
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
             var oMaterial = oContext.getObject();
             
             // Bind material to detail dialog
             var oDetailDialog = this.byId("analystMaterialDetailsDialog");
             oDetailDialog.bindElement({
                 path: oContext.getPath(),
-                model: "materialsModel"
+                model: "materialRequestsModel"
             });
             
             oDetailDialog.open();
@@ -870,14 +869,14 @@ sap.ui.define([
         },
 
         onViewAnalystMaterialSpecs: function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext("materialsModel");
+            var oContext = oEvent.getSource().getBindingContext("materialRequestsModel");
             var oMaterial = oContext.getObject();
             
             // Bind material to specs dialog
             var oSpecsDialog = this.byId("analystMaterialSpecsDialog");
             oSpecsDialog.bindElement({
                 path: oContext.getPath(),
-                model: "materialsModel"
+                model: "materialRequestsModel"
             });
             
             oSpecsDialog.open();
@@ -890,8 +889,8 @@ sap.ui.define([
         // Pagination Methods
         onPageSizeChange: function(oEvent) {
             var iNewPageSize = parseInt(oEvent.getParameter("selectedItem").getKey());
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             // Get filtered materials based on current user persona
             var aFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
@@ -900,10 +899,10 @@ sap.ui.define([
         },
 
         onPreviousPage: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var iCurrentPage = oMaterialsModel.getProperty("/currentPage");
             var iPageSize = oMaterialsModel.getProperty("/pageSize");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             // Get filtered materials based on current user persona
             var aFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
@@ -914,10 +913,10 @@ sap.ui.define([
         },
 
         onNextPage: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var iCurrentPage = oMaterialsModel.getProperty("/currentPage");
             var iPageSize = oMaterialsModel.getProperty("/pageSize");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             var iTotalPages = oMaterialsModel.getProperty("/totalPages");
             
             // Get filtered materials based on current user persona
@@ -929,7 +928,7 @@ sap.ui.define([
         },
 
         _updatePagination: function(aMaterials, currentPage, pageSize) {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var totalItems = aMaterials.length;
             var totalPages = Math.ceil(totalItems / pageSize);
             var startIndex = ((currentPage - 1) * pageSize) + 1;
@@ -939,22 +938,22 @@ sap.ui.define([
             var end = start + pageSize;
             var pageMaterials = aMaterials.slice(start, end);
             
-            oMaterialsModel.setProperty("/filteredMaterials", pageMaterials);
-            oMaterialsModel.setProperty("/currentPage", currentPage);
-            oMaterialsModel.setProperty("/pageSize", pageSize);
-            oMaterialsModel.setProperty("/totalPages", totalPages);
-            oMaterialsModel.setProperty("/startIndex", startIndex);
-            oMaterialsModel.setProperty("/endIndex", endIndex);
-            oMaterialsModel.setProperty("/canGoPrevious", currentPage > 1);
-            oMaterialsModel.setProperty("/canGoNext", currentPage < totalPages);
+            oMaterialRequestsModel.setProperty("/filteredMaterials", pageMaterials);
+            oMaterialRequestsModel.setProperty("/currentPage", currentPage);
+            oMaterialRequestsModel.setProperty("/pageSize", pageSize);
+            oMaterialRequestsModel.setProperty("/totalPages", totalPages);
+            oMaterialRequestsModel.setProperty("/startIndex", startIndex);
+            oMaterialRequestsModel.setProperty("/endIndex", endIndex);
+            oMaterialRequestsModel.setProperty("/canGoPrevious", currentPage > 1);
+            oMaterialRequestsModel.setProperty("/canGoNext", currentPage < totalPages);
         },
 
         _updateMaterialStatus: function(materialId, newStatus, approvedDate) {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var oRequestsModel = this.getOwnerComponent().getModel("requestsModel");
             
             // Update in materials model
-            var aMaterials = oMaterialsModel.getProperty("/materials");
+            var aMaterials = oMaterialsModel.getProperty("/materialRequests");
             var oMaterial = aMaterials.find(function(material) {
                 return material.materialsID === materialId;
             });
@@ -1019,10 +1018,10 @@ sap.ui.define([
         },
 
         _updateRequestCounts: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
             var oRequestsModel = this.getOwnerComponent().getModel("requestsModel");
             
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
             // Calculate counts for materials model
             var approvedCount = aAllMaterials.filter(function(material) {
@@ -1081,9 +1080,11 @@ sap.ui.define([
             
             if (sPersona === "MaterialSearchUser") {
                 // MaterialSearchUser sees only completed materials
-                return aAllMaterials.filter(function(material) {
+                var aCompletedMaterials = aAllMaterials.filter(function(material) {
                     return material.status === "completedByIMA";
                 });
+                console.log("MaterialSearchUser - Completed materials count:", aCompletedMaterials.length);
+                return aCompletedMaterials;
             } else if (sPersona === "MaterialCreateUser") {
                 // MaterialCreateUser sees materials with status other than completed
                 return aAllMaterials.filter(function(material) {
@@ -1100,9 +1101,9 @@ sap.ui.define([
 
         // Helper function to update pagination based on current user persona
         _updatePaginationForCurrentUser: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
-            var iPageSize = oMaterialsModel.getProperty("/pageSize");
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialRequestsModel.getProperty("/materialRequests");
+            var iPageSize = oMaterialRequestsModel.getProperty("/pageSize");
             
             // Get filtered materials based on current user persona
             var aFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
@@ -1113,15 +1114,17 @@ sap.ui.define([
 
         // Helper function to generate next request ID
         _generateNextRequestID: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
+            var oMaterialsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialsModel.getProperty("/materialRequests");
             
-            // Find the highest request ID
+            // Find the highest request ID from existing materials
             var iMaxRequestID = 0;
             aAllMaterials.forEach(function(material) {
-                if (material.requestID) {
-                    var iCurrentID = parseInt(material.requestID);
-                    if (iCurrentID > iMaxRequestID) {
+                if (material.materialID && material.materialID.startsWith("MAT_REQ_")) {
+                    // Extract the numeric part after "MAT_REQ_"
+                    var sNumericPart = material.materialID.substring(8); // Remove "MAT_REQ_" prefix
+                    var iCurrentID = parseInt(sNumericPart);
+                    if (!isNaN(iCurrentID) && iCurrentID > iMaxRequestID) {
                         iMaxRequestID = iCurrentID;
                     }
                 }
@@ -1136,9 +1139,14 @@ sap.ui.define([
 
         // Helper function to apply persona-based filtering when page is rendered
         _applyPersonaBasedFiltering: function() {
-            var oMaterialsModel = this.getOwnerComponent().getModel("materialsModel");
-            var aAllMaterials = oMaterialsModel.getProperty("/materials");
-            var iPageSize = oMaterialsModel.getProperty("/pageSize");
+            var oMaterialRequestsModel = this.getOwnerComponent().getModel("materialRequestsModel");
+            var aAllMaterials = oMaterialRequestsModel.getProperty("/materialRequests");
+            var iPageSize = oMaterialRequestsModel.getProperty("/pageSize");
+            
+            console.log("_applyPersonaBasedFiltering - All materials count:", aAllMaterials ? aAllMaterials.length : "undefined");
+            if (aAllMaterials && aAllMaterials.length > 0) {
+                console.log("Sample material statuses:", aAllMaterials.slice(0, 3).map(function(m) { return m.status; }));
+            }
             
             // Get filtered materials based on current user persona
             var aFilteredMaterials = this._getFilteredMaterialsForCurrentUser(aAllMaterials);
@@ -1146,19 +1154,24 @@ sap.ui.define([
             // Update pagination with filtered materials
             this._updatePagination(aFilteredMaterials, 1, iPageSize);
             
-            // For AnalystUser, also update filteredMaterials property for the analyst table
+            // Update filteredMaterials property for all users
             var oUserModel = this.getOwnerComponent().getModel("userModel");
             var sPersona = oUserModel.getProperty("/userPersona");
             
-            if (sPersona === "AnalystUser") {
-                oMaterialsModel.setProperty("/filteredMaterials", aFilteredMaterials);
+            if (sPersona === "MaterialSearchUser" || sPersona === "AnalystUser") {
+                oMaterialRequestsModel.setProperty("/filteredMaterials", aFilteredMaterials);
+                console.log("Updated filteredMaterials for", sPersona, "with", aFilteredMaterials.length, "items");
             }
         },
 
         // Helper function to populate filter dropdowns for MaterialSearchUser
         _populateFilterDropdowns: function() {
+            console.log("_populateFilterDropdowns called");
             var oVendorFilter = this.byId("vendorFilter");
             var oPlantFilter = this.byId("plantFilter");
+            
+            console.log("Vendor filter found:", !!oVendorFilter);
+            console.log("Plant filter found:", !!oPlantFilter);
             
             if (oVendorFilter && oVendorFilter.getItems().length <= 1) {
                 // Clear existing items except "All Vendors"
