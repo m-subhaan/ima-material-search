@@ -22,9 +22,9 @@ function toCSV(rows) {
 }
 
 function generateSampleMaterialRequests() {
-  const vendors = ['Vendor A', 'Vendor B', 'Vendor C', 'Vendor D'];
-  const plants = ['Plant North', 'Plant South', 'Plant East', 'Plant West'];
-  const statuses = ['requested', 'emailSentToIMA', 'approved'];
+  const vendors = ['Caterpillar Inc.', 'Komatsu Ltd.', 'Volvo Construction Equipment', 'John Deere Construction', 'Liebherr Group', 'Hitachi Construction Machinery'];
+  const plants = ['Houston Manufacturing Plant', 'Chicago Steel Works', 'Phoenix Concrete Facility', 'Atlanta Materials Hub', 'Denver Construction Center', 'Seattle Industrial Complex'];
+  const statuses = ['pendingApproval', 'pendingIMA', 'completedByIMA'];
   const materialTypes = ['Steel Pipe', 'Aluminum Sheet', 'Copper Wire', 'Plastic Component', 'Rubber Gasket'];
   
   const materialRequests = [];
@@ -41,11 +41,11 @@ function generateSampleMaterialRequests() {
       lastName: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'][Math.floor(Math.random() * 5)],
       email: `user${i}@company.com`,
       status: status,
-      materialNumber: status === 'approved' ? `MAT${(1000 + i).toString()}` : '',
+      materialNumber: status === 'completedByIMA' ? `MAT${(1000 + i).toString()}` : '',
       createdAt: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
       createdBy: 'system',
       modifiedAt: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
-      modifiedBy: status === 'approved' ? 'approver' : 'system'
+      modifiedBy: status === 'completedByIMA' ? 'approver' : 'system'
     };
     materialRequests.push(materialRequest);
   }

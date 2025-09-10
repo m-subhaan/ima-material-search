@@ -17,8 +17,8 @@
                             width="200px"
                             class="sapUiTinyMarginEnd">
                             <core:Item key="all" text="All Statuses"/>
-                            <core:Item key="requested" text="Requested"/>
-                            <core:Item key="emailSentToIMA" text="Email Sent to IMA"/>
+                             <core:Item key="pendingApproval" text="Pending Approval"/>
+                             <core:Item key="pendingIMA" text="Pending IMA"/>
                         </Select>
                         <Button
                             text="Refresh"
@@ -38,11 +38,11 @@
                 <!-- Summary Cards -->
         <l:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiTinyMargin">
             <l:content>
-                <NumericContent
+                <!-- <NumericContent
                     value="{materialRequestsModel>/pendingRequests.length}"
                     scale="Total Requests"
                     valueColor="Neutral"
-                    icon="sap-icon://document"/>
+                    icon="sap-icon://document"/> -->
                 
                 <NumericContent
                     value="{materialRequestsModel>/requestedCount}"
@@ -53,7 +53,7 @@
                 <NumericContent
                     value="{materialRequestsModel>/emailSentCount}"
                     scale="Email Sent"
-                    valueColor="Warning"
+                    valueColor="Neutral"
                     icon="sap-icon://email"/>
                 
                 <NumericContent
@@ -221,9 +221,9 @@
                                 <Text text="{materialRequestsModel>materialDescription}"/>
                                 <Text text="{materialRequestsModel>vendor}"/>
                                 <Text text="{materialRequestsModel>plant}"/>
-                                <ObjectStatus
-                                    text="{materialRequestsModel>status}"
-                                    state="{= ${materialRequestsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}"/>
+                                 <ObjectStatus
+                                     text="{materialRequestsModel>status}"
+                                     state="{= ${materialRequestsModel>status} === 'pendingIMA' ? 'Warning' : 'Error'}"/>
                                 <Text text="{materialRequestsModel>firstName} {materialRequestsModel>lastName}"/>
                                 <Text text="{path: 'materialRequestsModel>createdAt', formatter: '.formatDate'}"/>
                                 <VBox alignItems="Center" class="sapUiTinyMargin">
@@ -231,7 +231,7 @@
                                         text="Send Email to IMA"
                                         type="Accept"
                                         press="onSendEmailToIMA"
-                                        enabled="{= ${materialRequestsModel>status} === 'requested'}"
+                                        enabled="{= ${materialRequestsModel>status} === 'pendingApproval'}"
                                         width="100%"
                                         class="sapUiTinyMarginBottom"
                                         icon="sap-icon://email"/>
@@ -239,7 +239,7 @@
                                         text="Close Request"
                                         type="Emphasized"
                                         press="onCloseRequest"
-                                        enabled="{= ${materialRequestsModel>status} === 'emailSentToIMA'}"
+                                        enabled="{= ${materialRequestsModel>status} === 'pendingIMA'}"
                                         width="100%"
                                         class="sapUiTinyMarginBottom"
                                         icon="sap-icon://accept"/>
@@ -281,7 +281,7 @@
                         <Text text="{materialRequestsModel>plant}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Status" class="sapUiTinyMarginBottom"/>
-                        <ObjectStatus text="{materialRequestsModel>status}" state="{= ${materialRequestsModel>status} === 'emailSentToIMA' ? 'Warning' : ${materialRequestsModel>status} === 'approved' ? 'Success' : 'Error'}" class="sapUiTinyMarginBottom"/>
+                         <ObjectStatus text="{materialRequestsModel>status}" state="{= ${materialRequestsModel>status} === 'pendingIMA' ? 'Warning' : ${materialRequestsModel>status} === 'completedByIMA' ? 'Success' : 'Error'}" class="sapUiTinyMarginBottom"/>
                         
                         <Label text="Material Number" class="sapUiTinyMarginBottom"/>
                         <Text text="{materialRequestsModel>materialNumber}" class="sapUiTinyMarginBottom"/>

@@ -9,7 +9,7 @@ entity MaterialRequests {
       firstName           : String;
       lastName            : String;
       email               : String;
-      status              : String;  // requested, emailSentToIMA, approved
+      status              : String;  // pendingApproval, pendingIMA, completedByIMA
       materialNumber      : String;  // Will be filled after approval
       createdAt           : DateTime;
       createdBy           : String;

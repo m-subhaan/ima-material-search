@@ -65,10 +65,10 @@ sap.ui.define([
             
             var aFilteredMaterials = aPersonaFilteredMaterials.filter(function(material) {
                 var bNameMatch = !sMaterialName || material.materialName.toLowerCase().includes(sMaterialName);
-                var bNumberMatch = !sMaterialNumber || material.materialNumber.toLowerCase().includes(sMaterialNumber);
+                var bNumberMatch = !sMaterialNumber || (material.materialNumber && material.materialNumber.toLowerCase().includes(sMaterialNumber));
                 var bDescriptionMatch = !sDescription || material.materialDescription.toLowerCase().includes(sDescription);
-                var bVendorMatch = !sVendor || material.vendor_ID === sVendor;
-                var bPlantMatch = !sPlant || material.plant_ID === sPlant;
+                var bVendorMatch = !sVendor || material.vendor === sVendor;
+                var bPlantMatch = !sPlant || material.plant === sPlant;
                 
                 return bNameMatch && bNumberMatch && bDescriptionMatch && bVendorMatch && bPlantMatch;
             });
@@ -77,7 +77,7 @@ sap.ui.define([
             this._updatePagination(aFilteredMaterials, 1, oMaterialsModel.getProperty("/pageSize"));
             
             var sPersona = this.getOwnerComponent().getModel("userModel").getProperty("/userPersona");
-            var sPersonaText = sPersona === "MaterialSearchUser" ? "approved" : 
+            var sPersonaText = sPersona === "MaterialSearchUser" ? "completedByIMA" : 
                               sPersona === "MaterialCreateUser" ? "non-approved" : "all";
             
             MessageToast.show("Filters applied. Found " + aFilteredMaterials.length + " " + sPersonaText + " materials.");
@@ -99,7 +99,7 @@ sap.ui.define([
             this._updatePagination(aFilteredMaterials, 1, oMaterialsModel.getProperty("/pageSize"));
             
             var sPersona = this.getOwnerComponent().getModel("userModel").getProperty("/userPersona");
-            var sPersonaText = sPersona === "MaterialSearchUser" ? "approved" : 
+            var sPersonaText = sPersona === "MaterialSearchUser" ? "completedByIMA" : 
                               sPersona === "MaterialCreateUser" ? "non-approved" : "all";
             
             MessageToast.show("Filters cleared. Showing all " + sPersonaText + " materials.");
@@ -142,7 +142,7 @@ sap.ui.define([
                 firstName: sFirstName,
                 lastName: sLastName,
                 email: sEmail,
-                status: "requested",
+                status: "pendingApproval",
                 materialNumber: "", // Will be filled after approval
                 createdAt: new Date().toISOString(),
                 createdBy: this.getOwnerComponent().getModel("userModel").getProperty("/currentUser/username") || "user",
@@ -228,16 +228,16 @@ sap.ui.define([
             if (sSelectedStatus === "all") {
                 // Show all requests (materials with requested or emailSentToIMA status)
                 var aAllRequests = aAllMaterials.filter(function(material) {
-                    return material.status === "requested" || material.status === "emailSentToIMA";
+                    return material.status === "pendingApproval" || material.status === "pendingIMA";
                 });
                 oRequestsModel.setProperty("/requests", aAllRequests);
                 
                 // Update counts
                 var pendingCount = aAllRequests.filter(function(request) {
-                    return request.status === "requested";
+                    return request.status === "pendingApproval";
                 }).length;
                 var emailSentCount = aAllRequests.filter(function(request) {
-                    return request.status === "emailSentToIMA";
+                    return request.status === "pendingIMA";
                 }).length;
                 oRequestsModel.setProperty("/pendingCount", pendingCount);
                 oRequestsModel.setProperty("/emailSentCount", emailSentCount);
@@ -250,10 +250,10 @@ sap.ui.define([
                 
                 // Update counts for filtered results
                 var pendingCount = aFilteredRequests.filter(function(request) {
-                    return request.status === "requested";
+                    return request.status === "pendingApproval";
                 }).length;
                 var emailSentCount = aFilteredRequests.filter(function(request) {
-                    return request.status === "emailSentToIMA";
+                    return request.status === "pendingIMA";
                 }).length;
                 oRequestsModel.setProperty("/pendingCount", pendingCount);
                 oRequestsModel.setProperty("/emailSentCount", emailSentCount);
@@ -334,6 +334,8 @@ sap.ui.define([
                     console.log("Fallback: Populating dropdowns from onAfterRendering");
                     this._populateDropdownsFromModels();
                 }
+                // Populate filter dropdowns
+                this._populateFilterDropdowns();
             }
         },
 
@@ -480,7 +482,7 @@ sap.ui.define([
             // Get all materials and filter for requests
             var aAllMaterials = oMaterialsModel.getProperty("/materials");
             var aRequests = aAllMaterials.filter(function(material) {
-                return material.status === "requested" || material.status === "emailSentToIMA";
+                return material.status === "pendingApproval" || material.status === "pendingIMA";
             });
             
             // Update requests model
@@ -488,10 +490,10 @@ sap.ui.define([
             
             // Update counts
             var pendingCount = aRequests.filter(function(request) {
-                return request.status === "requested";
+                return request.status === "pendingApproval";
             }).length;
             var emailSentCount = aRequests.filter(function(request) {
-                return request.status === "emailSentToIMA";
+                return request.status === "pendingIMA";
             }).length;
             
             oRequestsModel.setProperty("/pendingCount", pendingCount);
@@ -538,13 +540,13 @@ sap.ui.define([
             
             if (sAction === "sendEmail") {
                 // Update status to emailSentToIMA via OData
-                this._updateMaterialStatusOData(oMaterial.requestID, "emailSentToIMA", function() {
+                this._updateMaterialStatusOData(oMaterial.requestID, "pendingIMA", function() {
                     MessageToast.show("Email sent to IMA successfully");
                 });
             } else if (sAction === "closeRequest") {
                 // Update status to approved via OData
                 var sApprovedDate = new Date().toISOString().split('T')[0];
-                this._updateMaterialStatusOData(oMaterial.requestID, "approved", function() {
+                this._updateMaterialStatusOData(oMaterial.requestID, "completedByIMA", function() {
                     MessageToast.show("Request closed and material approved successfully");
                 }, sApprovedDate);
             }
@@ -617,7 +619,7 @@ sap.ui.define([
             }
             
             // Update the material request with material number and approved status
-            this._updateMaterialRequestStatus(oMaterial.materialID, "approved", sMaterialNumber);
+            this._updateMaterialRequestStatus(oMaterial.materialID, "completedByIMA", sMaterialNumber);
             
             // Close dialog and clear current material
             this.byId("materialNumberDialog").close();
@@ -631,7 +633,7 @@ sap.ui.define([
             
             if (sAction === "sendEmail") {
                 // Update status to emailSentToIMA
-                this._updateMaterialRequestStatus(oMaterial.materialID, "emailSentToIMA");
+                this._updateMaterialRequestStatus(oMaterial.materialID, "pendingIMA");
             }
             
             oConfirmDialog.close();
@@ -676,7 +678,7 @@ sap.ui.define([
                 // Refresh the data from OData
                 that.getOwnerComponent()._loadInitialData();
                 
-                var sMessage = sNewStatus === "emailSentToIMA" ? 
+                var sMessage = sNewStatus === "pendingIMA" ? 
                     "Email sent to IMA successfully" : 
                     "Request approved successfully with material number: " + sMaterialNumber;
                 
@@ -725,7 +727,7 @@ sap.ui.define([
             if (sSelectedStatus === "all") {
                 // Show all non-approved requests
                 aFilteredRequests = aAllMaterialRequests.filter(function(material) {
-                    return material.status === "requested" || material.status === "emailSentToIMA";
+                    return material.status === "pendingApproval" || material.status === "pendingIMA";
                 });
             } else {
                 // Filter by specific status
@@ -1005,9 +1007,9 @@ sap.ui.define([
             this._updateRequestCounts();
             
             // If status changed to approved, remove from requests list
-            if (newStatus === "approved") {
+            if (newStatus === "completedByIMA") {
                 var aUpdatedRequests = aRequests.filter(function(request) {
-                    return request.status !== "approved";
+                    return request.status !== "completedByIMA";
                 });
                 oRequestsModel.setProperty("/requests", aUpdatedRequests);
             }
@@ -1024,13 +1026,13 @@ sap.ui.define([
             
             // Calculate counts for materials model
             var approvedCount = aAllMaterials.filter(function(material) {
-                return material.status === "approved";
+                return material.status === "completedByIMA";
             }).length;
             var requestedCount = aAllMaterials.filter(function(material) {
-                return material.status === "requested";
+                return material.status === "pendingApproval";
             }).length;
             var emailSentCount = aAllMaterials.filter(function(material) {
-                return material.status === "emailSentToIMA";
+                return material.status === "pendingIMA";
             }).length;
             
             oMaterialsModel.setProperty("/approvedCount", approvedCount);
@@ -1039,14 +1041,14 @@ sap.ui.define([
             
             // Calculate counts for requests model
             var aRequests = aAllMaterials.filter(function(material) {
-                return material.status === "requested" || material.status === "emailSentToIMA";
+                return material.status === "pendingApproval" || material.status === "pendingIMA";
             });
             
             var pendingCount = aRequests.filter(function(request) {
-                return request.status === "requested";
+                return request.status === "pendingApproval";
             }).length;
             var emailSentRequestCount = aRequests.filter(function(request) {
-                return request.status === "emailSentToIMA";
+                return request.status === "pendingIMA";
             }).length;
             
             oRequestsModel.setProperty("/pendingCount", pendingCount);
@@ -1078,14 +1080,14 @@ sap.ui.define([
             var sPersona = oUserModel.getProperty("/userPersona");
             
             if (sPersona === "MaterialSearchUser") {
-                // MaterialSearchUser sees only approved materials
+                // MaterialSearchUser sees only completed materials
                 return aAllMaterials.filter(function(material) {
-                    return material.status === "approved";
+                    return material.status === "completedByIMA";
                 });
             } else if (sPersona === "MaterialCreateUser") {
-                // MaterialCreateUser sees materials with status other than approved
+                // MaterialCreateUser sees materials with status other than completed
                 return aAllMaterials.filter(function(material) {
-                    return material.status !== "approved";
+                    return material.status !== "completedByIMA";
                 });
             } else if (sPersona === "AnalystUser") {
                 // AnalystUser sees all materials
@@ -1150,6 +1152,64 @@ sap.ui.define([
             
             if (sPersona === "AnalystUser") {
                 oMaterialsModel.setProperty("/filteredMaterials", aFilteredMaterials);
+            }
+        },
+
+        // Helper function to populate filter dropdowns for MaterialSearchUser
+        _populateFilterDropdowns: function() {
+            var oVendorFilter = this.byId("vendorFilter");
+            var oPlantFilter = this.byId("plantFilter");
+            
+            if (oVendorFilter && oVendorFilter.getItems().length <= 1) {
+                // Clear existing items except "All Vendors"
+                oVendorFilter.removeAllItems();
+                oVendorFilter.addItem(new sap.ui.core.Item({
+                    key: "",
+                    text: "All Vendors"
+                }));
+                
+                // Add vendor options
+                var aVendors = [
+                    "Caterpillar Inc.",
+                    "Komatsu Ltd.", 
+                    "Volvo Construction Equipment",
+                    "John Deere Construction",
+                    "Liebherr Group",
+                    "Hitachi Construction Machinery"
+                ];
+                
+                aVendors.forEach(function(sVendor) {
+                    oVendorFilter.addItem(new sap.ui.core.Item({
+                        key: sVendor,
+                        text: sVendor
+                    }));
+                });
+            }
+            
+            if (oPlantFilter && oPlantFilter.getItems().length <= 1) {
+                // Clear existing items except "All Plants"
+                oPlantFilter.removeAllItems();
+                oPlantFilter.addItem(new sap.ui.core.Item({
+                    key: "",
+                    text: "All Plants"
+                }));
+                
+                // Add plant options
+                var aPlants = [
+                    "Houston Manufacturing Plant",
+                    "Chicago Steel Works",
+                    "Phoenix Concrete Facility",
+                    "Atlanta Materials Hub",
+                    "Denver Construction Center",
+                    "Seattle Industrial Complex"
+                ];
+                
+                aPlants.forEach(function(sPlant) {
+                    oPlantFilter.addItem(new sap.ui.core.Item({
+                        key: sPlant,
+                        text: sPlant
+                    }));
+                });
             }
         }
     });

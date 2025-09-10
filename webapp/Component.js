@@ -77,14 +77,14 @@ sap.ui.define([
         _processMaterialRequestsData: function(aMaterialRequests) {
             var oMaterialRequestsModel = this.getModel("materialRequestsModel");
                     
-            // Filter approved materials for MaterialSearchUser
+            // Filter completed materials for MaterialSearchUser
             var aApprovedMaterials = aMaterialRequests.filter(function(material) {
-                return material.status === "approved";
+                return material.status === "completedByIMA";
             });
 
-            // Filter pending requests for MaterialApproverUser (requested + emailSentToIMA)
+            // Filter pending requests for MaterialApproverUser (pendingApproval + pendingIMA)
             var aPendingRequests = aMaterialRequests.filter(function(material) {
-                return material.status === "requested" || material.status === "emailSentToIMA";
+                return material.status === "pendingApproval" || material.status === "pendingIMA";
             });
                     
             // Set material requests data
@@ -98,13 +98,13 @@ sap.ui.define([
             
             // Calculate and set counts
             var approvedCount = aMaterialRequests.filter(function(material) {
-                return material.status === "approved";
+                return material.status === "completedByIMA";
             }).length;
             var requestedCount = aMaterialRequests.filter(function(material) {
-                return material.status === "requested";
+                return material.status === "pendingApproval";
             }).length;
             var emailSentCount = aMaterialRequests.filter(function(material) {
-                return material.status === "emailSentToIMA";
+                return material.status === "pendingIMA";
             }).length;
                     
             oMaterialRequestsModel.setProperty("/approvedCount", approvedCount);

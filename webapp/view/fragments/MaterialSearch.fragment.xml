@@ -126,7 +126,7 @@
                         <Text text="{materialRequestsModel>materialDescription}" class="sapUiTinyMarginBottom"/>
 
                         <Label text="Status" class="sapUiTinyMarginBottom"/>
-                        <ObjectStatus text="{materialRequestsModel>status}" state="{= ${materialRequestsModel>status} === 'approved' ? 'Success' : ${materialRequestsModel>status} === 'emailSentToIMA' ? 'Warning' : 'Error'}" class="sapUiTinyMarginBottom"/>
+                        <ObjectStatus text="{materialRequestsModel>status}" state="{= ${materialRequestsModel>status} === 'completedByIMA' ? 'Success' : ${materialRequestsModel>status} === 'pendingIMA' ? 'Warning' : 'Error'}" class="sapUiTinyMarginBottom"/>
 
                         <Label text="Created By" class="sapUiTinyMarginBottom"/>
                         <Text text="{materialRequestsModel>createdBy}" class="sapUiTinyMarginBottom"/>
@@ -192,23 +192,27 @@
                                     <l:content>
                                         <VBox class="sapUiSmallMarginEnd">
                                             <Label text="Vendor" required="true" class="sapUiSmallMarginBottom"/>
-                                            <Select id="materialVendor" width="100%">
-                                                <core:Item key="" text="Select Vendor"/>
-                                                <core:Item key="Vendor A" text="Vendor A"/>
-                                                <core:Item key="Vendor B" text="Vendor B"/>
-                                                <core:Item key="Vendor C" text="Vendor C"/>
-                                                <core:Item key="Vendor D" text="Vendor D"/>
-                                            </Select>
+                                             <Select id="materialVendor" width="100%">
+                                                 <core:Item key="" text="Select Vendor"/>
+                                                 <core:Item key="Caterpillar Inc." text="Caterpillar Inc."/>
+                                                 <core:Item key="Komatsu Ltd." text="Komatsu Ltd."/>
+                                                 <core:Item key="Volvo Construction Equipment" text="Volvo Construction Equipment"/>
+                                                 <core:Item key="John Deere Construction" text="John Deere Construction"/>
+                                                 <core:Item key="Liebherr Group" text="Liebherr Group"/>
+                                                 <core:Item key="Hitachi Construction Machinery" text="Hitachi Construction Machinery"/>
+                                             </Select>
                                         </VBox>
 
                                         <VBox>
                                             <Label text="Plant" required="true" class="sapUiSmallMarginBottom"/>
                                             <Select id="materialPlant" width="100%">
                                                 <core:Item key="" text="Select Plant"/>
-                                                <core:Item key="Plant North" text="Plant North"/>
-                                                <core:Item key="Plant South" text="Plant South"/>
-                                                <core:Item key="Plant East" text="Plant East"/>
-                                                <core:Item key="Plant West" text="Plant West"/>
+                                                <core:Item key="Houston Manufacturing Plant" text="Houston Manufacturing Plant"/>
+                                                <core:Item key="Chicago Steel Works" text="Chicago Steel Works"/>
+                                                <core:Item key="Phoenix Concrete Facility" text="Phoenix Concrete Facility"/>
+                                                <core:Item key="Atlanta Materials Hub" text="Atlanta Materials Hub"/>
+                                                <core:Item key="Denver Construction Center" text="Denver Construction Center"/>
+                                                <core:Item key="Seattle Industrial Complex" text="Seattle Industrial Complex"/>
                                             </Select>
                                         </VBox>
                                     </l:content>
